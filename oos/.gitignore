@@ -1,0 +1,19 @@
+# ============================================================
+# oos/.gitignore
+# Extra safety net — root .gitignore already covers these,
+# but explicit local rules prevent accidents.
+# ============================================================
+
+# Backend secrets — never commit
+backend/.env
+backend/.env.production
+backend/.env.local
+backend/.env.*.local
+
+# Backend dependencies
+backend/node_modules/
+backend/npm-debug.log*
+
+# Production env (lives only on VPS)
+# Created manually on server, never tracked
+backend/.env.production

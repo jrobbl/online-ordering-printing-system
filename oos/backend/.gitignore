@@ -1,0 +1,18 @@
+# ============================================================
+# backend/.gitignore
+# ============================================================
+
+# Secrets — never commit any .env variant except .example
+.env
+.env.production
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.npm
+
+# Logs
+*.log

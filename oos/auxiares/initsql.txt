@@ -1,0 +1,29 @@
+create table IF NOT EXISTS products (
+	product_id SERIAL primary key,
+	product_name VARCHAR(100) not null unique,
+	price DECIMAL(10,2) not null check (price > 0),
+	created_at TIMESTAMP default CURRENT_TIMESTAMP
+);
+
+
+create table orders (
+	order_id SERIAL primary key ,
+	customer_name VARCHAR(100) not null,
+	customer_phone VARCHAR(100) not null,
+	customer_email varchar(100) not null,
+	order_date TIMESTAMP default CURRENT_TIMESTAMP,
+	total_amount DECIMAL(10,2) not null check (total_amount > 0),
+	status VARCHAR(20) default 'pending' check (status in ('pending','completed','cancelled')),
+	notes TEXT
+);
+
+
+create table order_items (
+	item_id SERIAL primary key,
+	order_id INTEGER not null,
+	product_id INTEGER not null,
+	quantity INTEGER not null,
+	unit_price DECIMAL(10,2) not null,
+	foreign key (order_id) references orders(order_id) on delete cascade,
+	foreign key (product_id) references products(product_id) on delete RESTRICT
+);

@@ -1,0 +1,39 @@
+# ============================================================
+# Root .gitignore — online-ordering-printing-system
+# ============================================================
+
+# --- Secrets (most important) ---
+**/.env
+**/.env.production
+**/.env.local
+**/.env.*.local
+# Allow example templates
+!**/.env.example
+
+# --- Node ---
+**/node_modules/
+**/npm-debug.log*
+**/yarn-error.log*
+**/.npm
+
+# --- Python ---
+**/__pycache__/
+**/*.py[cod]
+**/venv/
+**/.venv/
+**/*.egg-info/
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Editors ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- Logs ---
+*.log

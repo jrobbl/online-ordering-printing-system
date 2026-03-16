@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello Printer — Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #1a1a2e;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            gap: 24px;
+        }
+
+        .card {
+            background: #16213e;
+            border: 1px solid #0f3460;
+            border-radius: 12px;
+            padding: 48px 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .icon {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            color: #e0e0e0;
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 40px;
+        }
+
+        .print-btn {
+            width: 100%;
+            padding: 18px;
+            background: #e94560;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .print-btn:hover {
+            background: #c73652;
+        }
+
+        .print-btn:active {
+            transform: scale(0.98);
+        }
+
+        .print-btn:disabled {
+            background: #444;
+            cursor: not-allowed;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .status.success {
+            background: rgba(46, 213, 115, 0.15);
+            border: 1px solid rgba(46, 213, 115, 0.4);
+            color: #2ed573;
+            display: block;
+        }
+
+        .status.error {
+            background: rgba(233, 69, 96, 0.15);
+            border: 1px solid rgba(233, 69, 96, 0.4);
+            color: #e94560;
+            display: block;
+        }
+
+        .log {
+            width: 100%;
+            max-width: 400px;
+            background: #16213e;
+            border: 1px solid #0f3460;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .log h2 {
+            color: #666;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .log-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .log-item {
+            color: #888;
+            font-size: 12px;
+            font-family: monospace;
+            padding: 8px 12px;
+            background: #0f3460;
+            border-radius: 6px;
+        }
+
+        .log-item span {
+            color: #2ed573;
+            margin-right: 8px;
+        }
+
+        .logout {
+            color: #444;
+            font-size: 12px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            text-decoration: underline;
+        }
+
+        .logout:hover {
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="icon">🖨️</div>
+        <h1>Hello Printer</h1>
+        <p class="subtitle">Logged in as <strong id="username" style="color:#e0e0e0"></strong></p>
+
+        <button class="print-btn" id="printBtn" onclick="sendPrintJob()">
+            PRINT
+        </button>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <div class="log">
+        <h2>Print log</h2>
+        <ul class="log-list" id="logList">
+            <li class="log-item"><span>—</span>No jobs yet this session</li>
+        </ul>
+    </div>
+
+    <button class="logout" onclick="logout()">Log out</button>
+
+    <script>
+        // ── Auth guard ───────────────────────────────────────
+        const token = localStorage.getItem('hp_token');
+        if (!token) {
+            window.location.href = '/login.html';
+        }
+
+        // Decode username from token payload (no library needed)
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            document.getElementById('username').textContent = payload.username;
+        } catch {
+            logout();
+        }
+
+        // ── Print job ────────────────────────────────────────
+        async function sendPrintJob() {
+            const btn = document.getElementById('printBtn');
+            const status = document.getElementById('status');
+
+            status.className = 'status';
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+
+            try {
+                const res = await fetch('/api/print-job', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    status.textContent = `✅ Print job #${data.job.id} sent — waiting for printer`;
+                    status.className = 'status success';
+                    addLog(`Job #${data.job.id} created`);
+                } else if (res.status === 401 || res.status === 403) {
+                    // Token expired
+                    logout();
+                } else {
+                    status.textContent = '❌ Failed to create print job';
+                    status.className = 'status error';
+                }
+
+            } catch (err) {
+                status.textContent = '❌ Could not connect to server';
+                status.className = 'status error';
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'PRINT';
+        }
+
+        // ── Log ──────────────────────────────────────────────
+        function addLog(message) {
+            const list = document.getElementById('logList');
+
+            // Remove the placeholder if still there
+            if (list.children.length === 1 &&
+                list.children[0].textContent.includes('No jobs')) {
+                list.innerHTML = '';
+            }
+
+            const time = new Date().toLocaleTimeString('en-MX', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+
+            const item = document.createElement('li');
+            item.className = 'log-item';
+            item.innerHTML = `<span>${time}</span>${message}`;
+            list.prepend(item);
+        }
+
+        // ── Logout ───────────────────────────────────────────
+        function logout() {
+            localStorage.removeItem('hp_token');
+            window.location.href = '/login.html';
+        }
+    </script>
+</body>

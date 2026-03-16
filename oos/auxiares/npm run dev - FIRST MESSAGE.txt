@@ -1,0 +1,13 @@
+{
+  "error": "Route not found",
+  "message": "Cannot GET /",
+  "available_routes": [
+    "GET /api/health",
+    "GET /api/products",
+    "GET /api/products/:id",
+    "POST /api/orders",
+    "GET /api/orders",
+    "GET /api/orders/:id",
+    "PATCH /api/orders/:id/status"
+  ]
+}

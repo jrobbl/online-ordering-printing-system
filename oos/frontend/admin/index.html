@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Pedidos de la Panadería</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav">
+                <h1 class="logo">📋 Panel de Administración</h1>
+                <div class="admin-nav-links">
+                    <span id="current-time" class="text-muted"></span>
+                    <span id="admin-username" class="text-muted"></span>
+                    <button class="btn btn-sm btn-secondary" id="logout-btn">
+                        Cerrar Sesión
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container section">
+
+        <!-- Dashboard Header -->
+        <div class="flex-between mb-4">
+            <div>
+                <h2>Gestión de Pedidos</h2>
+                <p class="text-muted">Gestiona y rastrea los pedidos de la panadería</p>
+            </div>
+            <button class="btn btn-secondary" onclick="fetchOrders()">
+                🔄 Actualizar
+            </button>
+        </div>
+
+        <!-- Stats Cards (hidden — uncomment to restore)
+        <div class="grid grid-3 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3 id="total-orders" class="text-primary" style="font-size: 2.5rem; margin: 0;">0</h3>
+                    <p class="text-muted">Total de Pedidos</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3 id="pending-orders" class="text-secondary" style="font-size: 2.5rem; margin: 0;">0</h3>
+                    <p class="text-muted">Pedidos Pendientes</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3 id="completed-orders" style="font-size: 2.5rem; margin: 0; color: #4caf50;">0</h3>
+                    <p class="text-muted">Completados Hoy</p>
+                </div>
+            </div>
+        </div>
+        -->
+
+        <!-- Filter Buttons -->
+        <div class="flex filter-bar mb-3">
+            <!-- "All" button hidden — uncomment to restore
+            <button class="btn btn-outline" data-filter="all" onclick="filterOrders('all')">
+                Todos los Pedidos
+            </button>
+            -->
+            <button class="btn btn-outline active" data-filter="pending" onclick="filterOrders('pending')">
+                Pendientes
+            </button>
+            <button class="btn btn-outline" data-filter="completed" onclick="filterOrders('completed')">
+                Completados
+            </button>
+            <button class="btn btn-outline" data-filter="cancelled" onclick="filterOrders('cancelled')">
+                Cancelados
+            </button>
+            <button class="btn btn-secondary" onclick="printRecentOrders()" style="margin-left: auto;">
+                🖨️ Imprimir Recientes (30 min)
+            </button>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loading" class="spinner"></div>
+
+        <!-- Orders List -->
+        <div id="orders-container" class="hidden">
+            <!-- Orders will be inserted here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="empty-state hidden">
+            <div class="empty-state-icon">📦</div>
+            <p>No se encontraron pedidos</p>
+        </div>
+
+        <!-- Error Message -->
+        <div id="error-message" class="empty-state hidden">
+            <div class="empty-state-icon">⚠️</div>
+            <p>No se pudieron cargar los pedidos. Asegúrate de que el servidor esté en funcionamiento.</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 EMMER Panadería - Panel de Administración</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script src="script.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panadería - Pedidos en Línea</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav">
+                <h1 class="logo">EMMER Panadería</h1>
+                <div class="nav-links">
+                    <span class="nav-link">Horario: 6:00 AM - 6:00 PM</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container section">
+        <div class="grid main-layout">
+
+            <!-- Products Section -->
+            <div>
+                <h2 class="mb-3">Nuestros Productos</h2>
+
+                <!-- Loading Spinner -->
+                <div id="loading" class="spinner"></div>
+
+                <!-- Products Grid -->
+                <div id="products-grid" class="grid grid-3 hidden">
+                    <!-- Products will be inserted here by JavaScript -->
+                </div>
+
+                <!-- Error Message -->
+                <div id="error-message" class="empty-state hidden">
+                    <div class="empty-state-icon">⚠️</div>
+                    <p>No se pudieron cargar los productos. Asegúrate de que el servidor esté en funcionamiento.</p>
+                </div>
+            </div>
+
+            <!-- Shopping Cart Section -->
+            <div>
+                <div class="card" style="position: sticky; top: 100px;">
+                    <div class="card-body">
+                        <h3 class="mb-3">🛒 Carrito de Compras</h3>
+
+                        <!-- Empty Cart Message -->
+                        <div id="empty-cart" class="empty-state">
+                            <p class="text-muted">Tu carrito está vacío</p>
+                        </div>
+
+                        <!-- Cart Items -->
+                        <div id="cart-items" class="hidden">
+                            <!-- Cart items will be inserted here -->
+                        </div>
+
+                        <!-- Cart Total -->
+                        <div id="cart-total" class="hidden"
+                            style="border-top: 2px solid #ddd; margin-top: 1rem; padding-top: 1rem;">
+                            <div class="flex-between" style="font-size: 1.25rem; font-weight: bold;">
+                                <span>Total:</span>
+                                <span id="total-amount" class="text-primary">$0.00</span>
+                            </div>
+                            <button class="btn btn-primary btn-block mt-3" id="checkout-btn">
+                                Continuar la orden
+                            </button>
+                        </div>
+
+                        <!-- Checkout Form (Initially Hidden) -->
+                        <div id="checkout-form" class="hidden">
+                            <div style="border-top: 2px solid #ddd; margin-top: 1rem; padding-top: 1rem;">
+                                <h4 class="mb-3">📝 Información de Contacto</h4>
+
+                                <form id="order-form">
+                                    <div class="form-group">
+                                        <label class="form-label">Nombre *</label>
+                                        <input type="text" id="customer-name" class="form-control"
+                                            placeholder="Tu nombre completo" required>
+                                        <span class="form-error">Por favor ingresa tu nombre</span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Sucursal *</label>
+                                        <input type="text" id="customer-branch" class="form-control"
+                                            placeholder="Nombre de tu sucursal" required>
+                                        <span class="form-error">Por favor ingresa tu sucursal</span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Correo Electrónico (Opcional)</label>
+                                        <input type="email" id="customer-email" class="form-control"
+                                            placeholder="tu@ejemplo.com">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Instrucciones Especiales (Opcional)</label>
+                                        <textarea id="order-notes" class="form-control"
+                                            placeholder="¿Alguna solicitud especial?" rows="3"></textarea>
+                                    </div>
+
+                                    <div class="flex-between mb-2" style="font-size: 1.25rem; font-weight: bold;">
+                                        <span>Total:</span>
+                                        <span id="checkout-total-amount" class="text-primary">$0.00</span>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary btn-block" id="place-order-btn">
+                                        Realizar Pedido
+                                    </button>
+
+                                    <button type="button" class="btn btn-outline btn-block mt-2" id="back-to-cart-btn">
+                                        ← Volver al Carrito
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Order Success Message (Initially Hidden) -->
+                        <div id="order-success" class="hidden">
+                            <div style="text-align: center; padding: 2rem 0;">
+                                <div style="font-size: 4rem; margin-bottom: 1rem;">✅</div>
+                                <h3 class="mb-2">¡Pedido Realizado con Éxito!</h3>
+                                <p class="text-muted mb-3">Total: $<span id="order-total"></span></p>
+                                <button class="btn btn-primary" id="new-order-btn">
+                                    Realizar Otro Pedido
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 EMMER Panadería. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
