@@ -840,10 +840,6 @@ textarea.form-control {
   border-color: var(--primary-color);
 }
 
-/* Remove the default ✕ button that appears in search inputs on Safari/Chrome */
-.search-input::-webkit-search-cancel-button {
-  -webkit-appearance: none;
-}
 
 /* ============================================
    MOBILE FLOATING CART BAR

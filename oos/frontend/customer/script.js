@@ -453,10 +453,13 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchProducts();
 
     if (productSearchInput) {
-        productSearchInput.addEventListener('input', e => {
+        const handleSearch = e => {
             searchQuery = e.target.value;
             displayProducts();
-        });
+        };
+        productSearchInput.addEventListener('input', handleSearch);
+        productSearchInput.addEventListener('keyup', handleSearch);
+        productSearchInput.addEventListener('change', handleSearch);
     }
 
     if (mobileCartBar) {
