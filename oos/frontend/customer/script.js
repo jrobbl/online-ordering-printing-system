@@ -371,17 +371,23 @@ async function submitOrder(event) {
         }
 
         // Success!
-        // Clear cart
+        // Clear cart and reset all product steppers immediately
         cart = [];
         if (mobileCartBar) mobileCartBar.classList.add('hidden');
+        displayProducts();
 
         // Reset form
         orderForm.reset();
 
         // Show success view
         switchView('success');
-
         showToast('¡Pedido realizado con éxito!', 'success');
+
+        // Auto-return to clean state after 5 seconds
+        setTimeout(() => {
+            switchView('cart');
+            updateCartDisplay();
+        }, 5000);
 
     } catch (error) {
         console.error('Error placing order:', error);
@@ -436,6 +442,7 @@ orderForm.addEventListener('submit', submitOrder);
 newOrderBtn.addEventListener('click', () => {
     switchView('cart');
     updateCartDisplay();
+    displayProducts();
 });
 
 // ============================================

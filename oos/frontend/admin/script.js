@@ -8,15 +8,10 @@
 // AUTHENTICATION CHECK
 // ============================================
 
-// Check if user is authenticated on page load
 (async function checkAuth() {
     const authenticated = await requireAuth();
-    if (!authenticated) {
-        // requireAuth() will redirect to login
-        return;
-    }
+    if (!authenticated) return;
 
-    // Display admin username in header
     const token = getAuthToken();
     if (token) {
         try {
@@ -30,16 +25,16 @@
         }
     }
 
-    // Fetch orders only after auth is confirmed
-    fetchOrders('pending');
+    fetchOrders();
 })();
 
 // ============================================
-// STATE MANAGEMENT
+// STATE
 // ============================================
 
 let orders = [];
-let currentFilter = 'pending';
+let currentPeriod = 'today_yesterday'; // 'today_yesterday' | 'this_week' | 'all'
+let currentStatus = null;              // null | 'pending' | 'completed' | 'cancelled'
 const printedOrders = new Set();
 
 // ============================================
@@ -78,43 +73,64 @@ const pendingOrdersElement = document.getElementById('pending-orders');
 const completedOrdersElement = document.getElementById('completed-orders');
 
 // ============================================
+// PERIOD → DATE RANGE
+// ============================================
+
+function getDateRange(period) {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    if (period === 'today_yesterday') {
+        const from = new Date(today);
+        from.setDate(from.getDate() - 1); // midnight yesterday
+        return { date_from: from.toISOString(), date_to: null };
+    }
+
+    if (period === 'this_week') {
+        const dayOfWeek = today.getDay();
+        const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+        const monday = new Date(today);
+        monday.setDate(monday.getDate() - daysFromMonday);
+        return { date_from: monday.toISOString(), date_to: null };
+    }
+
+    return { date_from: null, date_to: null };
+}
+
+// ============================================
 // FETCH ORDERS FROM API
 // ============================================
 
-async function fetchOrders(filter = null) {
+async function fetchOrders() {
     try {
         loadingSpinner.classList.remove('hidden');
         ordersContainer.classList.add('hidden');
         emptyState.classList.add('hidden');
         errorMessage.classList.add('hidden');
 
-        const url = filter && filter !== 'all'
-            ? `${API_URL}/orders?status=${filter}`
-            : `${API_URL}/orders`;
+        const { date_from, date_to } = getDateRange(currentPeriod);
+        const params = new URLSearchParams();
+        if (currentStatus) params.set('status', currentStatus);
+        if (date_from) params.set('date_from', date_from);
+        if (date_to) params.set('date_to', date_to);
 
+        const url = `${API_URL}/orders${params.toString() ? '?' + params.toString() : ''}`;
         const token = getAuthToken();
 
         const response = await fetch(url, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+            headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        // Handle authentication errors
         if (response.status === 401) {
-            console.log('Authentication failed, redirecting to login...');
             clearAuthToken();
             window.location.href = 'login.html';
             return;
         }
 
-        if (!response.ok) {
-            throw new Error('Failed to fetch orders');
-        }
+        if (!response.ok) throw new Error('Failed to fetch orders');
 
         orders = await response.json();
 
-        // Populate printedOrders from has_print_jobs flag
         printedOrders.clear();
         orders.forEach(o => { if (o.has_print_jobs) printedOrders.add(o.order_id); });
 
@@ -122,16 +138,10 @@ async function fetchOrders(filter = null) {
 
         if (orders.length === 0) {
             emptyState.classList.remove('hidden');
-            ordersContainer.classList.add('hidden');      // ← Add this line
-            errorMessage.classList.add('hidden');         // ← Add this line
         } else {
             ordersContainer.classList.remove('hidden');
-            emptyState.classList.add('hidden');           // ← Add this line
-            errorMessage.classList.add('hidden');         // ← Add this line
             displayOrders();
         }
-
-        updateStats();
 
     } catch (error) {
         console.error('Error fetching orders:', error);
@@ -141,16 +151,79 @@ async function fetchOrders(filter = null) {
 }
 
 // ============================================
+// PERIOD AND STATUS CONTROLS
+// ============================================
+
+function setPeriod(period) {
+    currentPeriod = period;
+    document.querySelectorAll('[data-period]').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`[data-period="${period}"]`).classList.add('active');
+    fetchOrders();
+}
+
+function setStatus(status) {
+    currentStatus = status;
+    document.querySelectorAll('[data-status]').forEach(btn => btn.classList.remove('active'));
+    const selector = status ? `[data-status="${status}"]` : '[data-status=""]';
+    document.querySelector(selector).classList.add('active');
+    fetchOrders();
+}
+
+// ============================================
 // DISPLAY ORDERS
 // ============================================
 
 function displayOrders() {
     ordersContainer.innerHTML = '';
 
+    if (currentPeriod === 'all') {
+        const groups = groupByWeek(orders);
+        groups.forEach(({ label, orders: weekOrders }) => {
+            ordersContainer.innerHTML += `<div class="week-header">${escapeHtml(label)}</div>`;
+            weekOrders.forEach(order => {
+                ordersContainer.innerHTML += createOrderCard(order);
+            });
+        });
+    } else {
+        orders.forEach(order => {
+            ordersContainer.innerHTML += createOrderCard(order);
+        });
+    }
+}
+
+// ============================================
+// GROUP BY WEEK (for historical view)
+// ============================================
+
+function groupByWeek(orders) {
+    const weeks = new Map();
+
     orders.forEach(order => {
-        const orderCard = createOrderCard(order);
-        ordersContainer.innerHTML += orderCard;
+        const date = new Date(order.order_date);
+        const day = date.getDay();
+        const daysFromMonday = day === 0 ? 6 : day - 1;
+        const monday = new Date(date);
+        monday.setDate(monday.getDate() - daysFromMonday);
+        monday.setHours(0, 0, 0, 0);
+        const sunday = new Date(monday);
+        sunday.setDate(sunday.getDate() + 6);
+
+        const weekKey = monday.toISOString().split('T')[0];
+
+        if (!weeks.has(weekKey)) {
+            weeks.set(weekKey, { label: formatWeekLabel(monday, sunday), orders: [] });
+        }
+        weeks.get(weekKey).orders.push(order);
     });
+
+    return Array.from(weeks.values());
+}
+
+function formatWeekLabel(monday, sunday) {
+    const opts = { day: 'numeric', month: 'short' };
+    const m = monday.toLocaleDateString('es-MX', opts);
+    const s = sunday.toLocaleDateString('es-MX', opts);
+    return `Semana del ${m} al ${s}, ${sunday.getFullYear()}`;
 }
 
 // ============================================
@@ -160,124 +233,95 @@ function displayOrders() {
 function createOrderCard(order) {
     const statusColor = getStatusColor(order.status);
     const formattedDate = formatDate(order.order_date);
+    const itemCount = order.item_count != null
+        ? `${order.item_count} producto${order.item_count !== 1 ? 's' : ''}`
+        : '';
 
     return `
-        <div class="card mb-3">
-            <div class="card-body">
-                <div class="flex-between mb-2">
-                    <div>
-                        <p style="font-size: 1.1rem; font-weight: 600; margin: 0;">
-                            ${escapeHtml(order.customer_name)}
-                        </p>
-                        <p style="font-size: 1rem; margin: 0; color: var(--gray);">
-                            ${escapeHtml(order.customer_branch)}
-                        </p>
-                    </div>
-                    <div style="text-align: right;">
-                        <span class="badge" style="background-color: ${statusColor};">
-                            ${translateStatus(order.status)}
-                        </span>
-                        <p class="text-muted" style="font-size: 0.875rem; margin-top: 0.5rem;">
-                            ${formattedDate}
-                        </p>
-                    </div>
+        <div class="order-card order-card--${order.status}" onclick="toggleOrderDetails(${order.order_id}, this)">
+            <div class="order-card-header">
+                <div class="order-card-info">
+                    <p class="order-card-name">${escapeHtml(order.customer_name)}</p>
+                    <p class="order-card-branch">${escapeHtml(order.customer_branch)}</p>
                 </div>
-
-                <div style="border-top: 1px solid #eee; padding-top: 1rem; margin-top: 1rem;">
-                    <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                        ${printedOrders.has(order.order_id) ? `
-                            <span style="color: #4caf50; font-size: 0.85rem; font-weight: bold;">Impreso ✓</span>
-                        ` : ''}
-                        <button class="btn btn-sm btn-outline" onclick="viewOrderDetails(${order.order_id})">
-                            Ver Detalles
-                        </button>
-                        <button class="btn btn-sm btn-outline" onclick="printOrder(${order.order_id})" title="Imprimir ticket">
-                            🖨️
-                        </button>
-                        ${order.status === 'pending' ? `
-                            <button class="btn btn-sm btn-primary" onclick="updateOrderStatus(${order.order_id}, 'completed')">
-                                Marcar Completado
-                            </button>
-                            <button class="btn btn-sm btn-secondary" onclick="updateOrderStatus(${order.order_id}, 'cancelled')">
-                                Cancelar
-                            </button>
-                        ` : ''}
-                    </div>
-                </div>
-
-                <!-- Order Details (Initially Hidden) -->
-                <div id="order-details-${order.order_id}" class="hidden" style="border-top: 1px solid #eee; margin-top: 1rem; padding-top: 1rem;">
-                    <div class="spinner" style="margin: 2rem auto;"></div>
-                </div>
+                <span class="badge" style="background-color: ${statusColor}; align-self: flex-start;">
+                    ${translateStatus(order.status)}
+                </span>
+            </div>
+            <div class="order-card-meta">
+                <span>${formattedDate}</span>
+                <span>${itemCount}</span>
+                ${printedOrders.has(order.order_id) ? '<span class="printed-badge">Impreso ✓</span>' : ''}
+            </div>
+            <div id="order-details-${order.order_id}" class="order-card-details hidden">
+                <div class="spinner" style="margin: 0.75rem auto; width: 24px; height: 24px; border-width: 2px;"></div>
             </div>
         </div>
     `;
 }
 
 // ============================================
-// VIEW ORDER DETAILS
+// TOGGLE ORDER DETAILS (expand / collapse card)
 // ============================================
 
-async function viewOrderDetails(orderId) {
-    const detailsContainer = document.getElementById(`order-details-${orderId}`);
+async function toggleOrderDetails(orderId, cardEl) {
+    const detailsEl = document.getElementById(`order-details-${orderId}`);
 
-    // Toggle visibility
-    if (!detailsContainer.classList.contains('hidden')) {
-        detailsContainer.classList.add('hidden');
+    if (!detailsEl.classList.contains('hidden')) {
+        detailsEl.classList.add('hidden');
+        cardEl.classList.remove('expanded');
         return;
     }
 
-    detailsContainer.classList.remove('hidden');
+    detailsEl.classList.remove('hidden');
+    cardEl.classList.add('expanded');
+
+    // Already loaded — skip fetch
+    if (!detailsEl.querySelector('.spinner')) return;
 
     try {
         const token = getAuthToken();
-
         const response = await fetch(`${API_URL}/orders/${orderId}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+            headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        // Handle authentication errors
         if (response.status === 401) {
             clearAuthToken();
             window.location.href = 'login.html';
             return;
         }
 
-        if (!response.ok) {
-            throw new Error('Failed to fetch order details');
-        }
+        if (!response.ok) throw new Error('Failed to fetch order details');
 
         const order = await response.json();
+        const printed = printedOrders.has(orderId);
 
-        detailsContainer.innerHTML = `
-            <div class="grid order-details-grid">
-                <div>
-                    <h4 class="mb-2">Información del Cliente</h4>
-                    <p><strong>Nombre:</strong> ${escapeHtml(order.customer_name)}</p>
-                    <p><strong>Teléfono:</strong> ${escapeHtml(order.customer_phone)}</p>
-                    <p><strong>Correo:</strong> ${escapeHtml(order.customer_email)}</p>
-                    ${order.notes ? `<p><strong>Notas:</strong> ${escapeHtml(order.notes)}</p>` : ''}
-                </div>
-
-                <div>
-                    <h4 class="mb-2">Artículos del Pedido</h4>
+        detailsEl.innerHTML = `
+            <div class="order-card-expanded">
+                <div class="order-items-list">
                     ${order.items.map(item => `
-                        <div class="flex-between mb-2" style="border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">
-                            <strong>${escapeHtml(item.product_name)}</strong>
-                            <span class="text-muted">${item.quantity} unidades</span>
+                        <div class="order-item-row">
+                            <span>${escapeHtml(item.product_name)}</span>
+                            <span class="text-muted">${item.quantity} unid.</span>
                         </div>
                     `).join('')}
+                </div>
+                ${order.notes ? `<p class="order-notes">${escapeHtml(order.notes)}</p>` : ''}
+                ${order.customer_phone ? `<p class="order-phone">📞 ${escapeHtml(order.customer_phone)}</p>` : ''}
+                <div class="order-actions">
+                    ${printed ? '<span class="printed-badge">Impreso ✓</span>' : ''}
+                    <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); printOrder(${orderId})" title="Imprimir ticket">🖨️</button>
+                    ${order.status === 'pending' ? `
+                        <button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); updateOrderStatus(${orderId}, 'completed')">Completado</button>
+                        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); updateOrderStatus(${orderId}, 'cancelled')">Cancelar</button>
+                    ` : ''}
                 </div>
             </div>
         `;
 
     } catch (error) {
         console.error('Error fetching order details:', error);
-        detailsContainer.innerHTML = `
-            <p class="text-muted text-center">Error al cargar los detalles del pedido</p>
-        `;
+        detailsEl.innerHTML = '<p class="text-muted" style="padding: 0.5rem 0; font-size: 0.85rem;">Error al cargar detalles</p>';
     }
 }
 
@@ -288,12 +332,10 @@ async function viewOrderDetails(orderId) {
 async function updateOrderStatus(orderId, newStatus) {
     const statusName = STATUS_LABELS_LOWER[newStatus] || newStatus;
     const confirmed = confirm(`¿Estás seguro de que deseas marcar este pedido como ${statusName}?`);
-
     if (!confirmed) return;
 
     try {
         const token = getAuthToken();
-
         const response = await fetch(`${API_URL}/orders/${orderId}/status`, {
             method: 'PATCH',
             headers: {
@@ -303,21 +345,16 @@ async function updateOrderStatus(orderId, newStatus) {
             body: JSON.stringify({ status: newStatus })
         });
 
-        // Handle authentication errors
         if (response.status === 401) {
             clearAuthToken();
             window.location.href = 'login.html';
             return;
         }
 
-        if (!response.ok) {
-            throw new Error('Failed to update order status');
-        }
+        if (!response.ok) throw new Error('Failed to update order status');
 
         showToast(`Pedido #${orderId} marcado como ${statusName}`, 'success');
-
-        // Refresh orders
-        fetchOrders(currentFilter === 'all' ? null : currentFilter);
+        fetchOrders();
 
     } catch (error) {
         console.error('Error updating order status:', error);
@@ -353,7 +390,6 @@ async function printOrder(orderId) {
         }
 
         printedOrders.add(orderId);
-        // Re-render to show the badge without a full network fetch
         displayOrders();
 
     } catch (error) {
@@ -380,66 +416,11 @@ async function printRecentOrders() {
 
         const data = await response.json();
         showToast(`${data.queued} pedido(s) recientes encolados para impresión`, 'success');
-
-        // Refresh to update badges
-        fetchOrders(currentFilter === 'all' ? null : currentFilter);
+        fetchOrders();
 
     } catch (error) {
         console.error('Error printing recent orders:', error);
         showToast('Error al imprimir pedidos recientes', 'error');
-    }
-}
-
-// ============================================
-// FILTER ORDERS
-// ============================================
-
-function filterOrders(filter) {
-    currentFilter = filter;
-
-    // Update active button
-    document.querySelectorAll('[data-filter]').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
-
-    // Fetch filtered orders
-    fetchOrders(filter === 'all' ? null : filter);
-}
-
-// ============================================
-// UPDATE STATS
-// ============================================
-
-async function updateStats() {
-    try {
-        // Fetch all orders for stats (regardless of current filter)
-        const token = getAuthToken();
-
-        const response = await fetch(`${API_URL}/orders`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-
-        // Handle authentication errors
-        if (response.status === 401) {
-            clearAuthToken();
-            window.location.href = 'login.html';
-            return;
-        }
-        const allOrders = await response.json();
-
-        const total = allOrders.length;
-        const pending = allOrders.filter(o => o.status === 'pending').length;
-        const completed = allOrders.filter(o => o.status === 'completed').length;
-
-        if (totalOrdersElement) totalOrdersElement.textContent = total;
-        if (pendingOrdersElement) pendingOrdersElement.textContent = pending;
-        if (completedOrdersElement) completedOrdersElement.textContent = completed;
-
-    } catch (error) {
-        console.error('Error updating stats:', error);
     }
 }
 
@@ -488,9 +469,7 @@ function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `toast ${type} show`;
     toast.textContent = message;
-
     document.body.appendChild(toast);
-
     setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => toast.remove(), 300);
@@ -498,15 +477,60 @@ function showToast(message, type = 'success') {
 }
 
 // ============================================
+// BACKGROUND REFRESH (non-disruptive)
+// ============================================
+
+async function refreshOrdersData() {
+    try {
+        const { date_from, date_to } = getDateRange(currentPeriod);
+        const params = new URLSearchParams();
+        if (currentStatus) params.set('status', currentStatus);
+        if (date_from) params.set('date_from', date_from);
+        if (date_to) params.set('date_to', date_to);
+
+        const url = `${API_URL}/orders${params.toString() ? '?' + params.toString() : ''}`;
+        const token = getAuthToken();
+
+        const response = await fetch(url, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.status === 401) {
+            clearAuthToken();
+            window.location.href = 'login.html';
+            return;
+        }
+
+        if (!response.ok) return; // silently ignore on background refresh
+
+        const freshOrders = await response.json();
+        freshOrders.forEach(o => { if (o.has_print_jobs) printedOrders.add(o.order_id); });
+        orders = freshOrders;
+
+        // Only re-render if no card is currently open
+        const hasExpandedCard = !!document.querySelector('.order-card.expanded');
+        if (!hasExpandedCard) {
+            if (orders.length === 0) {
+                ordersContainer.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                ordersContainer.classList.remove('hidden');
+                displayOrders();
+            }
+        }
+        // else: data is updated in memory — DOM stays untouched until user closes the card
+
+    } catch (error) {
+        // silently ignore — background refresh should never disrupt the user
+    }
+}
+
+// ============================================
 // AUTO-REFRESH
 // ============================================
 
-// Refresh orders every 30 seconds
-setInterval(() => {
-    fetchOrders(currentFilter === 'all' ? null : currentFilter);
-}, 30000);
-
-// Update time every second
+setInterval(() => refreshOrdersData(), 30000);
 setInterval(updateCurrentTime, 1000);
 
 // ============================================
@@ -516,7 +540,6 @@ setInterval(updateCurrentTime, 1000);
 document.addEventListener('DOMContentLoaded', () => {
     updateCurrentTime();
 
-    // Logout button handler
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', handleLogout);

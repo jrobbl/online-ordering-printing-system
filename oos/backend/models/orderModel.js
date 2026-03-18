@@ -172,17 +172,33 @@ async function getAllOrders(filters = {}) {
         let query = `
       SELECT o.order_id, o.customer_name, o.customer_branch, o.customer_phone, o.customer_email,
              o.order_date, o.total_amount, o.status,
-             CASE WHEN COUNT(pj.id) > 0 THEN true ELSE false END AS has_print_jobs
+             COUNT(DISTINCT oi.item_id)                                    AS item_count,
+             CASE WHEN COUNT(DISTINCT pj.id) > 0 THEN true ELSE false END AS has_print_jobs
       FROM orders o
-      LEFT JOIN print_jobs pj ON pj.order_id = o.order_id
+      LEFT JOIN print_jobs pj    ON pj.order_id = o.order_id
+      LEFT JOIN order_items oi   ON oi.order_id = o.order_id
     `;
 
         const params = [];
+        const conditions = [];
 
-        // Add status filter if provided
         if (filters.status) {
-            query += ' WHERE o.status = $1';
             params.push(filters.status);
+            conditions.push(`o.status = $${params.length}`);
+        }
+
+        if (filters.date_from) {
+            params.push(filters.date_from);
+            conditions.push(`o.order_date >= $${params.length}`);
+        }
+
+        if (filters.date_to) {
+            params.push(filters.date_to);
+            conditions.push(`o.order_date < $${params.length}`);
+        }
+
+        if (conditions.length > 0) {
+            query += ' WHERE ' + conditions.join(' AND ');
         }
 
         query += ' GROUP BY o.order_id ORDER BY o.order_date DESC';

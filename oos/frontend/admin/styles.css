@@ -312,9 +312,11 @@ p {
     color: var(--primary-color);
 }
 
-.btn-outline:hover {
+.btn-outline:hover,
+.btn-outline.active {
     background-color: var(--primary-color);
     color: var(--white);
+    border-color: var(--primary-color);
 }
 
 .btn-sm {
@@ -744,7 +746,7 @@ textarea.form-control {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 .loading {
@@ -791,6 +793,189 @@ textarea.form-control {
     border-radius: var(--radius-full);
     background-color: var(--primary-color);
     color: var(--white);
+}
+
+/* ============================================
+   PERIOD NAVIGATION TABS
+   ============================================ */
+
+.period-nav {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.period-btn {
+    padding: 0.6rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--gray);
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.period-btn:hover {
+    color: var(--primary-color);
+}
+
+.period-btn.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* ============================================
+   ORDERS GRID
+   ============================================ */
+
+.orders-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+/* Week header spans all columns */
+.week-header {
+    grid-column: 1 / -1;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--gray);
+    padding: 0.75rem 0 0.25rem;
+    border-top: 1px solid #e0e0e0;
+    margin-top: 0.5rem;
+}
+
+.week-header:first-child {
+    border-top: none;
+    margin-top: 0;
+    padding-top: 0;
+}
+
+/* ============================================
+   ORDER CARDS
+   ============================================ */
+
+.order-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 0.9rem;
+    cursor: pointer;
+    transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+    border-left: 4px solid transparent;
+    overflow: hidden;
+}
+
+.order-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.order-card.expanded {
+    box-shadow: var(--shadow-md);
+    border-left-color: var(--primary-color);
+}
+
+/* Status-tinted left border */
+.order-card--pending  { border-left-color: #ff9800; }
+.order-card--completed { border-left-color: #4caf50; }
+.order-card--cancelled { border-left-color: #f44336; }
+
+.order-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.order-card-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.order-card-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.order-card-branch {
+    font-size: 0.8rem;
+    color: var(--gray);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.order-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.75rem;
+    font-size: 0.78rem;
+    color: var(--gray);
+}
+
+.printed-badge {
+    color: #4caf50;
+    font-weight: 700;
+    font-size: 0.78rem;
+}
+
+/* ============================================
+   ORDER CARD EXPANDED PANEL
+   ============================================ */
+
+.order-card-details {
+    margin-top: 0.75rem;
+}
+
+.order-card-expanded {
+    border-top: 1px solid #eee;
+    padding-top: 0.75rem;
+}
+
+.order-items-list {
+    margin-bottom: 0.5rem;
+}
+
+.order-item-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    padding: 0.2rem 0;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.order-notes {
+    font-size: 0.82rem;
+    color: var(--gray);
+    font-style: italic;
+    margin: 0.4rem 0;
+}
+
+.order-phone {
+    font-size: 0.82rem;
+    color: var(--gray);
+    margin: 0.2rem 0 0.5rem;
+}
+
+.order-actions {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 0.6rem;
 }
 
 /* ============================================
@@ -949,5 +1134,36 @@ textarea.form-control {
     /* Smaller card padding */
     .card-body {
         padding: var(--spacing-sm);
+    }
+}
+
+/* ============================================
+   ORDERS GRID — RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+@media (max-width: 1200px) {
+    .orders-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .orders-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .period-btn {
+        padding: 0.5rem 0.9rem;
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .orders-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .order-card:hover {
+        transform: none;
     }
 }

@@ -17,9 +17,8 @@
                 <div class="admin-nav-links">
                     <span id="current-time" class="text-muted"></span>
                     <span id="admin-username" class="text-muted"></span>
-                    <button class="btn btn-sm btn-secondary" id="logout-btn">
-                        Cerrar Sesión
-                    </button>
+                    <button class="btn btn-sm btn-outline" onclick="fetchOrders()">🔄 Actualizar</button>
+                    <button class="btn btn-sm btn-secondary" id="logout-btn">Cerrar Sesión</button>
                 </div>
             </div>
         </div>
@@ -29,14 +28,8 @@
     <main class="container section">
 
         <!-- Dashboard Header -->
-        <div class="flex-between mb-4">
-            <div>
-                <h2>Gestión de Pedidos</h2>
-                <p class="text-muted">Gestiona y rastrea los pedidos de la panadería</p>
-            </div>
-            <button class="btn btn-secondary" onclick="fetchOrders()">
-                🔄 Actualizar
-            </button>
+        <div class="mb-4">
+            <h2>Gestión de Pedidos</h2>
         </div>
 
         <!-- Stats Cards (hidden — uncomment to restore)
@@ -62,32 +55,35 @@
         </div>
         -->
 
-        <!-- Filter Buttons -->
+        <!-- Period Navigation -->
+        <div class="period-nav mb-2">
+            <button class="period-btn active" data-period="today_yesterday" onclick="setPeriod('today_yesterday')">
+                Hoy y Ayer
+            </button>
+            <button class="period-btn" data-period="this_week" onclick="setPeriod('this_week')">
+                Esta Semana
+            </button>
+            <button class="period-btn" data-period="all" onclick="setPeriod('all')">
+                Historial
+            </button>
+        </div>
+
+        <!-- Status Filter -->
         <div class="flex filter-bar mb-3">
-            <!-- "All" button hidden — uncomment to restore
-            <button class="btn btn-outline" data-filter="all" onclick="filterOrders('all')">
-                Todos los Pedidos
-            </button>
-            -->
-            <button class="btn btn-outline active" data-filter="pending" onclick="filterOrders('pending')">
-                Pendientes
-            </button>
-            <button class="btn btn-outline" data-filter="completed" onclick="filterOrders('completed')">
-                Completados
-            </button>
-            <button class="btn btn-outline" data-filter="cancelled" onclick="filterOrders('cancelled')">
-                Cancelados
-            </button>
-            <button class="btn btn-secondary" onclick="printRecentOrders()" style="margin-left: auto;">
-                🖨️ Imprimir Recientes (30 min)
+            <button class="btn btn-sm btn-outline active" data-status="" onclick="setStatus(null)">Todos</button>
+            <button class="btn btn-sm btn-outline" data-status="pending" onclick="setStatus('pending')">Pendientes</button>
+            <button class="btn btn-sm btn-outline" data-status="completed" onclick="setStatus('completed')">Completados</button>
+            <button class="btn btn-sm btn-outline" data-status="cancelled" onclick="setStatus('cancelled')">Cancelados</button>
+            <button class="btn btn-sm btn-secondary" onclick="printRecentOrders()" style="margin-left: auto;">
+                🖨️ Imprimir Recientes
             </button>
         </div>
 
         <!-- Loading Spinner -->
         <div id="loading" class="spinner"></div>
 
-        <!-- Orders List -->
-        <div id="orders-container" class="hidden">
+        <!-- Orders Grid -->
+        <div id="orders-container" class="orders-grid hidden">
             <!-- Orders will be inserted here -->
         </div>
 

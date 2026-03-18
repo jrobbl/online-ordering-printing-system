@@ -90,7 +90,7 @@ router.post('/', validateOrderingTime, async (req, res) => {
  */
 router.get('/', authenticateToken, async (req, res) => {  // ← ADDED authenticateToken
     try {
-        const { status } = req.query;
+        const { status, date_from, date_to } = req.query;
 
         // Validate status filter if provided
         if (status && !['pending', 'completed', 'cancelled'].includes(status)) {
@@ -100,7 +100,11 @@ router.get('/', authenticateToken, async (req, res) => {  // ← ADDED authentic
             });
         }
 
-        const filters = status ? { status } : {};
+        const filters = {};
+        if (status) filters.status = status;
+        if (date_from) filters.date_from = date_from;
+        if (date_to) filters.date_to = date_to;
+
         const orders = await orderModel.getAllOrders(filters);
 
         res.status(200).json(orders);
