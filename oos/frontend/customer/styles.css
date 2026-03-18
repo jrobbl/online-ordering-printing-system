@@ -807,6 +807,87 @@ textarea.form-control {
 }
 
 /* ============================================
+   SEARCH BAR
+   ============================================ */
+
+.search-wrapper {
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  pointer-events: none;
+  line-height: 1;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border: 2px solid #ddd;
+  border-radius: var(--radius-full);
+  font-size: 1rem;
+  background-color: var(--white);
+  transition: border-color var(--transition-fast);
+  -webkit-appearance: none;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+/* Remove the default ✕ button that appears in search inputs on Safari/Chrome */
+.search-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}
+
+/* ============================================
+   MOBILE FLOATING CART BAR
+   ============================================ */
+
+#mobile-cart-bar {
+  display: flex;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--primary-color);
+  color: var(--white);
+  padding: 1rem var(--spacing-md);
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  font-size: 1rem;
+  z-index: 500;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  /* Respect safe area on phones with home indicator (iPhone X+) */
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+}
+
+#mobile-cart-bar.hidden {
+  display: none;
+}
+
+/* Always hide on desktop */
+@media (min-width: 769px) {
+  #mobile-cart-bar {
+    display: none !important;
+  }
+}
+
+/* Add bottom padding when the bar is visible so content doesn't hide behind it */
+@media (max-width: 768px) {
+  body:has(#mobile-cart-bar:not(.hidden)) {
+    padding-bottom: 72px;
+  }
+}
+
+/* ============================================
    COMPACT PRODUCT CARDS
    ============================================ */
 
@@ -835,14 +916,14 @@ textarea.form-control {
   flex-shrink: 0;
 }
 
-/* Smaller stepper inside product cards */
+/* Smaller stepper inside product cards — min 40px for touch targets */
 .product-card .qty-stepper {
-  height: 32px;
+  height: 40px;
 }
 
 .product-card .qty-stepper-btn {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   font-size: 1rem;
 }
 

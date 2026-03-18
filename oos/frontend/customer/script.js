@@ -12,6 +12,7 @@ const API_URL = '/api';
 let products = [];
 let cart = [];
 let currentView = 'cart'; // 'cart', 'checkout', 'success'
+let searchQuery = '';
 
 // ============================================
 // DOM ELEMENTS
@@ -25,6 +26,10 @@ const cartItemsContainer = document.getElementById('cart-items');
 const cartTotalSection = document.getElementById('cart-total');
 const totalAmountElement = document.getElementById('total-amount');
 const checkoutBtn = document.getElementById('checkout-btn');
+
+// Search and mobile cart bar
+const productSearchInput = document.getElementById('product-search');
+const mobileCartBar = document.getElementById('mobile-cart-bar');
 
 // Checkout form elements
 const checkoutForm = document.getElementById('checkout-form');
@@ -78,7 +83,16 @@ async function fetchProducts() {
 function displayProducts() {
     productsGrid.innerHTML = '';
 
-    products.forEach(product => {
+    const filtered = products.filter(p =>
+        p.product_name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    if (filtered.length === 0 && searchQuery) {
+        productsGrid.innerHTML = `<p class="text-muted text-center" style="grid-column: 1 / -1; padding: 1rem 0;">Sin resultados para "<strong>${escapeHtml(searchQuery)}</strong>"</p>`;
+        return;
+    }
+
+    filtered.forEach(product => {
         const qty = getCartQuantity(product.product_id);
         const productCard = `
             <div class="card product-card">
@@ -227,6 +241,24 @@ function updateCartDisplay() {
         });
 
     }
+
+    updateMobileCartBar();
+}
+
+// ============================================
+// MOBILE CART BAR
+// ============================================
+
+function updateMobileCartBar() {
+    if (!mobileCartBar) return;
+    const total = cart.reduce((sum, i) => sum + i.quantity, 0);
+    if (total > 0) {
+        mobileCartBar.classList.remove('hidden');
+        document.getElementById('mobile-cart-count').textContent =
+            `🛒  ${total} ${total === 1 ? 'producto' : 'productos'}`;
+    } else {
+        mobileCartBar.classList.add('hidden');
+    }
 }
 
 // ============================================
@@ -341,6 +373,7 @@ async function submitOrder(event) {
         // Success!
         // Clear cart
         cart = [];
+        if (mobileCartBar) mobileCartBar.classList.add('hidden');
 
         // Reset form
         orderForm.reset();
@@ -411,4 +444,17 @@ newOrderBtn.addEventListener('click', () => {
 
 document.addEventListener('DOMContentLoaded', () => {
     fetchProducts();
+
+    if (productSearchInput) {
+        productSearchInput.addEventListener('input', e => {
+            searchQuery = e.target.value;
+            displayProducts();
+        });
+    }
+
+    if (mobileCartBar) {
+        mobileCartBar.addEventListener('click', () => {
+            document.getElementById('cart-panel').scrollIntoView({ behavior: 'smooth' });
+        });
+    }
 });
