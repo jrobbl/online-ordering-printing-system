@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panadería - Pedidos en Línea</title>
+    <title>Panadería Emmer - Pedidos en Línea</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -27,13 +27,13 @@
 
             <!-- Products Section -->
             <div>
-                <h2 class="mb-3">Nuestros Productos</h2>
+                <h2 class="mb-3">Menú</h2>
 
                 <!-- Loading Spinner -->
                 <div id="loading" class="spinner"></div>
 
                 <!-- Products Grid -->
-                <div id="products-grid" class="grid grid-3 hidden">
+                <div id="products-grid" class="grid grid-2 hidden">
                     <!-- Products will be inserted here by JavaScript -->
                 </div>
 
@@ -63,11 +63,7 @@
                         <!-- Cart Total -->
                         <div id="cart-total" class="hidden"
                             style="border-top: 2px solid #ddd; margin-top: 1rem; padding-top: 1rem;">
-                            <div class="flex-between" style="font-size: 1.25rem; font-weight: bold;">
-                                <span>Total:</span>
-                                <span id="total-amount" class="text-primary">$0.00</span>
-                            </div>
-                            <button class="btn btn-primary btn-block mt-3" id="checkout-btn">
+                            <button class="btn btn-primary btn-block" id="checkout-btn">
                                 Continuar la orden
                             </button>
                         </div>
@@ -104,11 +100,6 @@
                                             placeholder="¿Alguna solicitud especial?" rows="3"></textarea>
                                     </div>
 
-                                    <div class="flex-between mb-2" style="font-size: 1.25rem; font-weight: bold;">
-                                        <span>Total:</span>
-                                        <span id="checkout-total-amount" class="text-primary">$0.00</span>
-                                    </div>
-
                                     <button type="submit" class="btn btn-primary btn-block" id="place-order-btn">
                                         Realizar Pedido
                                     </button>
@@ -125,7 +116,7 @@
                             <div style="text-align: center; padding: 2rem 0;">
                                 <div style="font-size: 4rem; margin-bottom: 1rem;">✅</div>
                                 <h3 class="mb-2">¡Pedido Realizado con Éxito!</h3>
-                                <p class="text-muted mb-3">Total: $<span id="order-total"></span></p>
+                                <p class="text-muted mb-3">Tu pedido fue recibido correctamente.</p>
                                 <button class="btn btn-primary" id="new-order-btn">
                                     Realizar Otro Pedido
                                 </button>

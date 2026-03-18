@@ -81,11 +81,10 @@ function displayProducts() {
     products.forEach(product => {
         const qty = getCartQuantity(product.product_id);
         const productCard = `
-            <div class="card">
-                <div class="card-body">
-                    <h3 class="card-title">${product.product_name}</h3>
-                    <p class="card-price">$${product.price.toFixed(2)}</p>
-                    <div id="stepper-${product.product_id}">
+            <div class="card product-card">
+                <div class="product-card-body">
+                    <span class="product-card-name">${product.product_name}</span>
+                    <div id="stepper-${product.product_id}" class="product-card-stepper">
                         ${renderStepper(product.product_id, product.product_name, product.price, qty)}
                     </div>
                 </div>
@@ -207,20 +206,19 @@ function updateCartDisplay() {
             const subtotal = item.price * item.quantity;
 
             const cartItemHTML = `
-                <div style="border-bottom: 1px solid #eee; padding: 1rem 0; margin-bottom: 1rem;">
-                    <div class="flex-between mb-1">
-                        <strong>${escapeHtml(item.product_name)}</strong>
-                        <button
-                            class="btn-sm"
-                            onclick="removeFromCart(${item.product_id})"
-                            style="color: #f44336; font-size: 0.875rem; cursor: pointer;"
-                        >
-                            Eliminar
-                        </button>
-                    </div>
-                    <div class="flex-between text-muted" style="font-size: 0.9rem;">
-                        <span>Cantidad: ${item.quantity}</span>
-                        <span>$${subtotal.toFixed(2)}</span>
+                <div style="border-bottom: 1px solid #eee; padding: 0.6rem 0;">
+                    <div class="flex-between">
+                        <strong style="font-size: 0.9rem;">${escapeHtml(item.product_name)}</strong>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <span class="text-muted" style="font-size: 0.85rem;">${item.quantity} unid.</span>
+                            <button
+                                class="btn-sm"
+                                onclick="removeFromCart(${item.product_id})"
+                                style="color: #f44336; font-size: 0.8rem; cursor: pointer;"
+                            >
+                                ✕
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
@@ -228,9 +226,6 @@ function updateCartDisplay() {
             cartItemsContainer.innerHTML += cartItemHTML;
         });
 
-        const total = calculateTotal();
-        totalAmountElement.textContent = `$${total.toFixed(2)}`;
-        checkoutTotalAmount.textContent = `$${total.toFixed(2)}`;
     }
 }
 
@@ -344,8 +339,6 @@ async function submitOrder(event) {
         }
 
         // Success!
-        orderTotal.textContent = data.order.total_amount.toFixed(2);
-
         // Clear cart
         cart = [];
 

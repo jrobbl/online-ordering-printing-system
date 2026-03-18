@@ -807,6 +807,59 @@ textarea.form-control {
 }
 
 /* ============================================
+   COMPACT PRODUCT CARDS
+   ============================================ */
+
+.product-card:hover {
+  transform: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.product-card-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem 0.85rem;
+  gap: 0.75rem;
+}
+
+.product-card-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--dark-gray);
+  flex: 1;
+  line-height: 1.3;
+}
+
+.product-card-stepper {
+  flex-shrink: 0;
+}
+
+/* Smaller stepper inside product cards */
+.product-card .qty-stepper {
+  height: 32px;
+}
+
+.product-card .qty-stepper-btn {
+  width: 32px;
+  height: 32px;
+  font-size: 1rem;
+}
+
+.product-card .qty-stepper-value {
+  font-size: 0.85rem;
+  min-width: 1.5rem;
+}
+
+/* Compact "add" button — not full-width */
+.product-card .btn-product-unselected {
+  display: inline-block;
+  width: auto;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.8rem;
+}
+
+/* ============================================
    QUANTITY STEPPER
    ============================================ */
 

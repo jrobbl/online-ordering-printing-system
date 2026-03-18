@@ -183,12 +183,7 @@ function createOrderCard(order) {
                     </div>
                 </div>
 
-                <div class="flex-between" style="border-top: 1px solid #eee; padding-top: 1rem; margin-top: 1rem;">
-                    <div>
-                        <p style="font-size: 1.25rem; font-weight: bold; color: var(--primary-color); margin: 0;">
-                            $${parseFloat(order.total_amount).toFixed(2)}
-                        </p>
-                    </div>
+                <div style="border-top: 1px solid #eee; padding-top: 1rem; margin-top: 1rem;">
                     <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
                         ${printedOrders.has(order.order_id) ? `
                             <span style="color: #4caf50; font-size: 0.85rem; font-weight: bold;">Impreso ✓</span>
@@ -270,22 +265,10 @@ async function viewOrderDetails(orderId) {
                     <h4 class="mb-2">Artículos del Pedido</h4>
                     ${order.items.map(item => `
                         <div class="flex-between mb-2" style="border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">
-                            <div>
-                                <strong>${escapeHtml(item.product_name)}</strong>
-                                <p class="text-muted" style="font-size: 0.875rem; margin: 0;">
-                                    ${item.quantity} x $${parseFloat(item.unit_price).toFixed(2)}
-                                </p>
-                            </div>
-                            <div>
-                                <strong>$${parseFloat(item.subtotal).toFixed(2)}</strong>
-                            </div>
+                            <strong>${escapeHtml(item.product_name)}</strong>
+                            <span class="text-muted">${item.quantity} unidades</span>
                         </div>
                     `).join('')}
-
-                    <div class="flex-between mt-3" style="font-size: 1.25rem; font-weight: bold;">
-                        <span>Total:</span>
-                        <span class="text-primary">$${parseFloat(order.total_amount).toFixed(2)}</span>
-                    </div>
                 </div>
             </div>
         `;
