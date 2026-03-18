@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const orderModel = require('../models/orderModel');
+const { createJobsForOrder } = require('../models/printJobModel');
 const validateOrderingTime = require('../middleware/validateTime');
-const { authenticateToken } = require('../middleware/auth');  // ← NEW
+const { authenticateToken } = require('../middleware/auth');
 
 /**
  * POST /api/orders
@@ -54,6 +55,11 @@ router.post('/', validateOrderingTime, async (req, res) => {
             notes,
             items
         });
+
+        // Auto-enqueue print jobs (fire-and-forget — never blocks the order response)
+        createJobsForOrder(order.order_id).catch(err =>
+            console.error('Auto-print job creation failed for order', order.order_id, err)
+        );
 
         res.status(201).json({
             success: true,
