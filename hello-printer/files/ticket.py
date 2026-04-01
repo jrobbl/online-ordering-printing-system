@@ -118,10 +118,7 @@ def build_ticket(p, order):
     date_str  = timestamp.strftime('%d/%m/%Y')
     time_str  = timestamp.strftime('%I:%M:%S %p').lower()
 
-    subtotal = sum(i['qty'] * i['price'] for i in order['items'])
-    iva      = round(subtotal * IVA_RATE, 2)
-    total    = round(subtotal + iva, 2)
-    count    = sum(i['qty'] for i in order['items'])
+    count = sum(i['qty'] for i in order['items'])
 
     # ── Top label ────────────────────────────────────────────
     w(RESET)
@@ -133,7 +130,6 @@ def build_ticket(p, order):
     w(center(label))
     w(DOUBLE_SIZE_OFF)
 
-    w(center('Preticket orden para llevar'))
     w(LINE)
 
     # ── Store header ─────────────────────────────────────────
@@ -148,21 +144,20 @@ def build_ticket(p, order):
     w(ALIGN_LEFT)
     w(left_right('Fecha:',        date_str))
     w(left_right('Orden:',        str(order['order_id'])))
-    w(left_right('Cajero:',       order['cajero']))
+    w(left_right('Cajero:',       'Proveeduría'))
     w(left_right('Hora Entrada:', time_str))
     w(LINE)
 
     # ── Column headers ───────────────────────────────────────
     w(BOLD_ON)
-    w(f"{'Cant.':<6} {'Descripcion':<28} {'Importe':>8}\n")
+    w(f"{'Cant.':<6} {'Descripcion':<36}\n")
     w(BOLD_OFF)
     w(LINE)
 
     # ── Items ────────────────────────────────────────────────
     for item in order['items']:
-        subtotal_item = item['qty'] * item['price']
-        name = item['name'][:27]
-        w(f"{item['qty']:<6} {name:<28} ${subtotal_item:>6.2f}\n")
+        name = item['name'][:35]
+        w(f"{item['qty']:<6} {name:<36}\n")
 
     w(LINE)
 
@@ -172,37 +167,10 @@ def build_ticket(p, order):
 
     is_customer = order.get('copy_type') == 'customer'
 
-    if is_customer:
-        # ── Totals ───────────────────────────────────────────
-        w(ALIGN_RIGHT)
-        w(f"Subtotal: ${subtotal:>8.2f}\n")
-        w(f"     IVA: ${iva:>8.2f}\n")
-        w(BOLD_ON)
-        w(f"Gran Total: ${total:>8.2f}\n")
-        w(BOLD_OFF)
-        w(FEED)
-
-        # ── Amount in words ──────────────────────────────────
-        w(ALIGN_CENTER)
-        words_line = amount_in_words(total)
-        if len(words_line) <= WIDTH:
-            w(center(words_line))
-        else:
-            mid = words_line[:WIDTH].rfind(' ')
-            w(center(words_line[:mid]))
-            w(center(words_line[mid+1:]))
-        w(LINE)
-
-        # ── Terminal info ────────────────────────────────────
-        w(ALIGN_LEFT)
-        w(left_right('Terminal:',        '1 -- SERVER1'))
-        w(left_right('Fecha impresion:', f"{date_str} {time_str}"))
-        w(LINE)
-
     # ── Customer data (both copies) ───────────────────────────
     w(ALIGN_CENTER)
     w(BOLD_ON)
-    w(center('DATOS DEL CLIENTE'))
+    w(center('CLIENTE'))
     w(BOLD_OFF)
     w(ALIGN_LEFT)
     w(left_right('Nombre:',   order['customer']))
@@ -213,17 +181,18 @@ def build_ticket(p, order):
         # ── Customer footer: signature line ──────────────────
         w(ALIGN_CENTER)
         w(BOLD_ON)
-        w(center('FIRMA DEL CLIENTE'))
+        w(center('FIRMA'))
         w(BOLD_OFF)
         w(ALIGN_LEFT)
-        w('_' * WIDTH + '\n')
+        w(FEED)
+        w(FEED)
         w(LINE)
-        w(center('Powered by jrobbl'))
     else:
-        # ── Store copy ends here — no footer ─────────────────
-        pass
+        # ── Print timestamp ───────────────────────────────────
+        w(ALIGN_LEFT)
+        w(left_right('Terminal:',        '1 -- SERVER1'))
+        w(left_right('Fecha impresion:', f"{date_str} {time_str}"))
+        w(LINE)
 
-    w(FEED)
-    w(FEED)
     w(FEED)
     w(CUT)
