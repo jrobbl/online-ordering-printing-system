@@ -80,6 +80,13 @@ async function fetchProducts() {
 // DISPLAY PRODUCTS
 // ============================================
 
+const CATEGORY_CONFIG = [
+    { key: 'Pan dulce',                  label: 'Pan Dulce',                  color: '#5cb85c' },
+    { key: 'Pan salado',                 label: 'Pan Salado',                 color: '#e07830' },
+    { key: 'Pan y productos por pedido', label: 'Pan y Productos por Pedido', color: '#d4a017' },
+    { key: 'Congelados y abarrotes',     label: 'Congelados y Abarrotes',     color: '#2980b9' },
+];
+
 function displayProducts() {
     productsGrid.innerHTML = '';
 
@@ -88,25 +95,58 @@ function displayProducts() {
     );
 
     if (filtered.length === 0 && searchQuery) {
-        productsGrid.innerHTML = `<p class="text-muted text-center" style="grid-column: 1 / -1; padding: 1rem 0;">Sin resultados para "<strong>${escapeHtml(searchQuery)}</strong>"</p>`;
+        productsGrid.innerHTML = `<p class="text-muted text-center" style="padding: 1rem 0;">Sin resultados para "<strong>${escapeHtml(searchQuery)}</strong>"</p>`;
         return;
     }
 
-    filtered.forEach(product => {
-        const qty = getCartQuantity(product.product_id);
-        const productCard = `
-            <div class="card product-card">
-                <div class="product-card-body">
-                    <span class="product-card-name">${product.product_name}</span>
-                    <div id="stepper-${product.product_id}" class="product-card-stepper">
-                        ${renderStepper(product.product_id, product.product_name, product.price, qty)}
-                    </div>
-                </div>
+    // When searching, show flat list; otherwise show category blocks
+    if (searchQuery) {
+        filtered.forEach(product => {
+            productsGrid.innerHTML += buildProductCard(product);
+        });
+        return;
+    }
+
+    CATEGORY_CONFIG.forEach(cat => {
+        const items = products.filter(p => p.category === cat.key);
+        if (items.length === 0) return;
+
+        const block = document.createElement('div');
+        block.className = 'category-block';
+
+        block.innerHTML = `
+            <button class="category-header" style="background-color: ${cat.color};" onclick="toggleCategory(this)">
+                <span>${cat.label}</span>
+                <span class="category-chevron">▼</span>
+            </button>
+            <div class="category-products hidden">
+                ${items.map(p => buildProductCard(p)).join('')}
             </div>
         `;
 
-        productsGrid.innerHTML += productCard;
+        productsGrid.appendChild(block);
     });
+}
+
+function buildProductCard(product) {
+    const qty = getCartQuantity(product.product_id);
+    return `
+        <div class="card product-card">
+            <div class="product-card-body">
+                <span class="product-card-name">${product.product_name}</span>
+                <div id="stepper-${product.product_id}" class="product-card-stepper">
+                    ${renderStepper(product.product_id, product.product_name, product.price, qty)}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function toggleCategory(headerBtn) {
+    const productsList = headerBtn.nextElementSibling;
+    const chevron = headerBtn.querySelector('.category-chevron');
+    productsList.classList.toggle('hidden');
+    chevron.textContent = productsList.classList.contains('hidden') ? '▼' : '▲';
 }
 
 function getCartQuantity(productId) {

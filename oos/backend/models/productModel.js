@@ -8,7 +8,7 @@ const pool = require('../config/database');
 async function getAllProducts() {
     try {
         const result = await pool.query(
-            'SELECT product_id, product_name, price, created_at FROM products ORDER BY product_name'
+            'SELECT product_id, product_name, price, category, created_at FROM products ORDER BY category, product_name'
         );
         return result.rows;
     } catch (error) {

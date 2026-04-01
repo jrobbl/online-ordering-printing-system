@@ -884,6 +884,60 @@ textarea.form-control {
 }
 
 /* ============================================
+   CATEGORY ACCORDION BLOCKS
+   ============================================ */
+
+.category-block {
+  margin-bottom: 0.75rem;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0.85rem 1.1rem;
+  color: var(--white);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: none;
+  border-radius: 0;
+}
+
+.category-header:hover {
+  filter: brightness(0.92);
+}
+
+.category-chevron {
+  font-size: 0.75rem;
+  transition: transform var(--transition-fast);
+}
+
+.category-products {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.4rem;
+  padding: 0.5rem;
+  background-color: var(--white);
+}
+
+.category-products.hidden {
+  display: none !important;
+}
+
+@media (max-width: 480px) {
+  .category-products {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
    COMPACT PRODUCT CARDS
    ============================================ */
 
