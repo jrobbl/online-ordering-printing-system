@@ -75,6 +75,7 @@ def print_job(job):
         'order_id'  : job['order_id'],
         'customer'  : job['customer_name'],
         'branch'    : job['customer_branch'],
+        'notes'     : job.get('notes') or '',
         'timestamp' : datetime.fromisoformat(job['order_date']),
         'copy_type' : job['copy_type'],
         'items'     : [

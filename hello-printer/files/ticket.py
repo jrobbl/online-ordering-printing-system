@@ -12,6 +12,7 @@ ESC = b'\x1b'
 GS  = b'\x1d'
 
 RESET           = ESC + b'@'
+CODEPAGE_CP850  = ESC + b't\x02'
 BOLD_ON         = ESC + b'E\x01'
 BOLD_OFF        = ESC + b'E\x00'
 DOUBLE_SIZE_ON  = GS  + b'!\x11'
@@ -111,7 +112,7 @@ def build_ticket(p, order):
 
     def w(data):
         if isinstance(data, str):
-            data = data.encode('utf-8', errors='replace')
+            data = data.encode('cp850', errors='replace')
         p.write(data)
 
     timestamp = order.get('timestamp', datetime.now())
@@ -122,13 +123,14 @@ def build_ticket(p, order):
 
     # ── Top label ────────────────────────────────────────────
     w(RESET)
+    w(CODEPAGE_CP850)
     w(ALIGN_CENTER)
 
     # ── Copy label ───────────────────────────────────────────
-    label = 'COPIA CLIENTE' if order.get('copy_type') == 'customer' else 'COPIA TIENDA'
-    w(DOUBLE_SIZE_ON)
+    label = 'CLIENTE' if order.get('copy_type') == 'customer' else 'TIENDA'
+    w(BOLD_ON)
     w(center(label))
-    w(DOUBLE_SIZE_OFF)
+    w(BOLD_OFF)
 
     w(LINE)
 
@@ -175,6 +177,9 @@ def build_ticket(p, order):
     w(ALIGN_LEFT)
     w(left_right('Nombre:',   order['customer']))
     w(left_right('Sucursal:', order.get('branch', '')))
+    notes = order.get('notes', '')
+    if notes:
+        w(f"Notas: {notes}\n")
     w(LINE)
 
     if is_customer:

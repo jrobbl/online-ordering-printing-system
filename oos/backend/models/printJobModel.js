@@ -59,7 +59,7 @@ async function createJobsForRecentOrders(minutes) {
 async function getPendingJob() {
     const result = await pool.query(
         `SELECT pj.id, pj.order_id, pj.copy_type, pj.created_at,
-                o.customer_name, o.customer_branch, o.order_date,
+                o.customer_name, o.customer_branch, o.order_date, o.notes,
                 json_agg(json_build_object(
                     'name', p.product_name,
                     'qty', oi.quantity,
@@ -71,7 +71,7 @@ async function getPendingJob() {
          JOIN products p ON p.product_id = oi.product_id
          WHERE pj.status = 'pending' AND pj.printed_at IS NULL
          GROUP BY pj.id, pj.order_id, pj.copy_type, pj.created_at,
-                  o.customer_name, o.customer_branch, o.order_date
+                  o.customer_name, o.customer_branch, o.order_date, o.notes
          ORDER BY pj.created_at ASC
          LIMIT 1`
     );
