@@ -144,27 +144,23 @@ def build_ticket(p, order):
 
     # ── Order info ───────────────────────────────────────────
     w(ALIGN_LEFT)
-    w(left_right('Fecha:',        date_str))
-    w(left_right('Orden:',        str(order['order_id'])))
-    w(left_right('Cajero:',       'Proveeduría'))
-    w(left_right('Hora Entrada:', time_str))
+    w(left_right(f"Fecha: {date_str}", f"Hora: {time_str}"))
+    w(left_right(f"Orden: {order['order_id']}", f"Cajero: Proveeduria"))
     w(LINE)
 
-    # ── Column headers ───────────────────────────────────────
+    # ── Column headers + article count ───────────────────────
+    art_label  = f"Art: {count}"
+    desc_width = WIDTH - 7 - len(art_label)
     w(BOLD_ON)
-    w(f"{'Cant.':<6} {'Descripcion':<36}\n")
+    w(f"{'Cant.':<6} {'Descripcion':<{desc_width}}{art_label}\n")
     w(BOLD_OFF)
     w(LINE)
 
     # ── Items ────────────────────────────────────────────────
     for item in order['items']:
-        name = item['name'][:35]
-        w(f"{item['qty']:<6} {name:<36}\n")
+        name = item['name'][:desc_width - 1]
+        w(f"{item['qty']:<6} {name:<{desc_width}}\n")
 
-    w(LINE)
-
-    # ── Article count ────────────────────────────────────────
-    w(f"Articulos: {count}\n")
     w(LINE)
 
     is_customer = order.get('copy_type') == 'customer'
@@ -177,26 +173,15 @@ def build_ticket(p, order):
     w(ALIGN_LEFT)
     w(left_right('Nombre:',   order['customer']))
     w(left_right('Sucursal:', order.get('branch', '')))
-    notes = order.get('notes', '')
-    if notes:
-        w(f"Notas: {notes}\n")
     w(LINE)
 
     if is_customer:
-        # ── Customer footer: signature line ──────────────────
-        w(ALIGN_CENTER)
-        w(BOLD_ON)
-        w(center('FIRMA'))
-        w(BOLD_OFF)
-        w(ALIGN_LEFT)
+        # ── Firma (left) + Notas (right) in shared space ─────
+        notes = order.get('notes', '')
+        notes_display = notes[:20] if notes else ''
+        w(left_right('Firma:', f"Notas: {notes_display}" if notes_display else 'Notas:'))
         w(FEED)
         w(FEED)
-        w(LINE)
-    else:
-        # ── Print timestamp ───────────────────────────────────
-        w(ALIGN_LEFT)
-        w(left_right('Terminal:',        '1 -- SERVER1'))
-        w(left_right('Fecha impresion:', f"{date_str} {time_str}"))
         w(LINE)
 
     w(FEED)
