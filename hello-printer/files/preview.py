@@ -23,10 +23,10 @@ TEST_ORDER = {
     'store'    : 'EMMER PANADERIA',
     'address'  : 'ZACATECAS 24 COL. ROMA NORTE',
     'phone'    : '5598333950',
-    'cajero'   : 'Sistema',
+    'cajero'   : 'Proveeduría',
     'footer'   : [],
-    'order_id' : 999,
-    'customer' : 'CLIENTE DE PRUEBA',
+    'order_id' : "XXXX",
+    'customer' : 'PRUEBA',
     'branch'   : 'SUCURSAL NORTE',
     'timestamp': datetime.now(),
     'items'    : [
@@ -34,7 +34,8 @@ TEST_ORDER = {
         {'name': 'Croissant de Mantequilla', 'qty': 2, 'price': 15.0},
         {'name': 'Baguette',                 'qty': 1, 'price': 15.0},
         {'name': 'Dona de Chocolate',        'qty': 4, 'price': 15.0},
-    ]
+    ],
+    'notes': 'Sin semillas de ajonjoli por favor, alergia del cliente'
 }
 
 # ── ESC/POS → text lines ─────────────────────────────────────────────────────

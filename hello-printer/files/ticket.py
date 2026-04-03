@@ -35,6 +35,19 @@ def center(text, width=WIDTH):
     """Center a string within width."""
     return text.center(width) + '\n'
 
+def wrap_text(text, width=WIDTH):
+    """Wrap text to fit within width, returning list of lines."""
+    words, lines, line = text.split(), [], ''
+    for word in words:
+        if len(line) + len(word) + (1 if line else 0) <= width:
+            line = f"{line} {word}".strip()
+        else:
+            lines.append(line)
+            line = word
+    if line:
+        lines.append(line)
+    return lines
+
 def left_right(left, right, width=WIDTH):
     """Two strings: left aligned and right aligned on same line."""
     gap = width - len(left) - len(right)
@@ -175,14 +188,28 @@ def build_ticket(p, order):
     w(left_right('Sucursal:', order.get('branch', '')))
     w(LINE)
 
+    notes = order.get('notes', '') or ''
+
     if is_customer:
         # ── Firma (left) + Notas (right) in shared space ─────
-        notes = order.get('notes', '')
-        notes_display = notes[:20] if notes else ''
-        w(left_right('Firma:', f"Notas: {notes_display}" if notes_display else 'Notas:'))
+        col_left  = WIDTH // 2
+        col_right = WIDTH - col_left
+        notas_text = f"Notas: {notes}" if notes else 'Notas:'
+        lines = wrap_text(notas_text, col_right)
+
+        first = lines[0] if lines else ''
+        w(f"{'Firma:':<{col_left}}{first}\n")
+        for extra in lines[1:]:
+            w(f"{'':<{col_left}}{extra}\n")
         w(FEED)
         w(FEED)
-        w(LINE)
+
+    else:
+        # ── Store copy: notes full width ──────────────────────
+        if notes:
+            for line in wrap_text(f"Notas: {notes}"):
+                w(f"{line}\n")
+            w(FEED)
 
     w(FEED)
     w(CUT)
