@@ -2,14 +2,13 @@ const express = require('express');
 const router = express.Router();
 const orderModel = require('../models/orderModel');
 const { createJobsForOrder } = require('../models/printJobModel');
-const validateOrderingTime = require('../middleware/validateTime');
 const { authenticateToken } = require('../middleware/auth');
 
 /**
  * POST /api/orders
  * Create a new order (PUBLIC - customers can create orders)
  */
-router.post('/', validateOrderingTime, async (req, res) => {
+router.post('/', async (req, res) => {
     try {
         const { customer_name, customer_branch, customer_phone, customer_email, notes, items } = req.body;
 
