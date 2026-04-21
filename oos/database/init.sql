@@ -68,6 +68,8 @@ INSERT INTO products (product_name, price, category) VALUES
     ('Campesino de caja ajonjolí (24h extra)',  0.00, 'Pan salado'),
     ('Campesino multigrano',                    0.00, 'Pan salado'),
     ('Ciabatta',                                0.00, 'Pan salado'),
+    ('Focaccia completa',                       0.00, 'Pan salado'),
+    ('1/2 Focaccia',                            0.00, 'Pan salado'),
     -- Pan y productos por pedido
     ('Bagel natural pza',                       0.00, 'Pan y productos por pedido'),
     ('Bagel semillas pza',                      0.00, 'Pan y productos por pedido'),
@@ -83,6 +85,15 @@ INSERT INTO products (product_name, price, category) VALUES
     ('Paq bagels naturales',                    0.00, 'Pan y productos por pedido'),
     ('Paq bagels parmesano',                    0.00, 'Pan y productos por pedido'),
     ('Paq bagels semillas',                     0.00, 'Pan y productos por pedido'),
+    -- MINIs
+    ('Croissant mini',                          0.00, 'MINIs'),
+    ('Chocolatín mini',                         0.00, 'MINIs'),
+    ('Concha mini',                             0.00, 'MINIs'),
+    ('Galleta mini',                            0.00, 'MINIs'),
+    ('Scone arándano y chocolate mini',         0.00, 'MINIs'),
+    ('Bollo brioche mini',                      0.00, 'MINIs'),
+    ('Ciabatta mini',                           0.00, 'MINIs'),
+    ('Bagel mini',                              0.00, 'MINIs'),
     -- Congelados y abarrotes
     ('Higos al vino tinto',                     0.00, 'Congelados y abarrotes'),
     ('Hummus',                                  0.00, 'Congelados y abarrotes'),
@@ -92,7 +103,8 @@ INSERT INTO products (product_name, price, category) VALUES
     ('Tortillas harina chipotle',               0.00, 'Congelados y abarrotes'),
     ('Tortillas harina integrales',             0.00, 'Congelados y abarrotes'),
     ('Tortillas harina mantequilla',            0.00, 'Congelados y abarrotes'),
-    ('Tzatziki',                                0.00, 'Congelados y abarrotes')
+    ('Tzatziki',                                0.00, 'Congelados y abarrotes'),
+    ('Salsa macha',                             0.00, 'Congelados y abarrotes')
 ON CONFLICT DO NOTHING;
 
 -- Create print_jobs table

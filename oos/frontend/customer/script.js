@@ -84,6 +84,7 @@ const CATEGORY_CONFIG = [
     { key: 'Pan dulce',                  label: 'Pan Dulce',                  color: '#5cb85c' },
     { key: 'Pan salado',                 label: 'Pan Salado',                 color: '#e07830' },
     { key: 'Pan y productos por pedido', label: 'Pan y Productos por Pedido', color: '#d4a017' },
+    { key: 'MINIs',                      label: 'MINIs',                      color: '#b5606e' },
     { key: 'Congelados y abarrotes',     label: 'Congelados y Abarrotes',     color: '#2980b9' },
 ];
 
