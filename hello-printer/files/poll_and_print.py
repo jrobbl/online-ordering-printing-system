@@ -76,7 +76,7 @@ def print_job(job):
         'customer'  : job['customer_name'],
         'branch'    : job['customer_branch'],
         'notes'     : job.get('notes') or '',
-        'timestamp' : datetime.fromisoformat(job['order_date']),
+        'timestamp' : datetime.fromisoformat(job['order_date'].replace('Z', '+00:00')).astimezone(),
         'copy_type' : job['copy_type'],
         'items'     : [
             {'name': i['name'], 'qty': i['qty'], 'price': i['price']}

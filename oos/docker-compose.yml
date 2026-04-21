@@ -10,7 +10,6 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
-      TZ: America/Mexico_City
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -31,8 +30,6 @@ services:
     restart: unless-stopped
     env_file:
       - backend/.env.production
-    environment:
-      - TZ=America/Mexico_City
     depends_on:
       postgres:
         condition: service_healthy
