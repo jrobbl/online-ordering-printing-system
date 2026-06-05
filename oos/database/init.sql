@@ -68,8 +68,6 @@ INSERT INTO products (product_name, price, category) VALUES
     ('Campesino de caja ajonjolí (24h extra)',  0.00, 'Pan salado'),
     ('Campesino multigrano',                    0.00, 'Pan salado'),
     ('Ciabatta',                                0.00, 'Pan salado'),
-    ('Focaccia completa',                       0.00, 'Pan salado'),
-    ('1/2 Focaccia',                            0.00, 'Pan salado'),
     -- Pan y productos por pedido
     ('Bagel natural pza',                       0.00, 'Pan y productos por pedido'),
     ('Bagel semillas pza',                      0.00, 'Pan y productos por pedido'),
@@ -78,6 +76,8 @@ INSERT INTO products (product_name, price, category) VALUES
     ('Bollo brioche hamburguesa',               0.00, 'Pan y productos por pedido'),
     ('Brioche de caja',                         0.00, 'Pan y productos por pedido'),
     ('Charola focaccia',                        0.00, 'Pan y productos por pedido'),
+    ('Focaccia completa',                       0.00, 'Pan y productos por pedido'),
+    ('1/2 Focaccia',                            0.00, 'Pan y productos por pedido'),
     ('Ganache blanco',                          0.00, 'Pan y productos por pedido'),
     ('Ganache blanco maracuyá',                 0.00, 'Pan y productos por pedido'),
     ('Ganache oscuro',                          0.00, 'Pan y productos por pedido'),
@@ -94,6 +94,7 @@ INSERT INTO products (product_name, price, category) VALUES
     ('Bollo brioche mini',                      0.00, 'MINIs'),
     ('Ciabatta mini',                           0.00, 'MINIs'),
     ('Bagel mini',                              0.00, 'MINIs'),
+    ('Baguetin mini',                           0.00, 'MINIs'),
     -- Congelados y abarrotes
     ('Higos al vino tinto',                     0.00, 'Congelados y abarrotes'),
     ('Hummus',                                  0.00, 'Congelados y abarrotes'),
