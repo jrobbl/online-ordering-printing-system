@@ -17,3 +17,6 @@ backend/npm-debug.log*
 # Production env (lives only on VPS)
 # Created manually on server, never tracked
 backend/.env.production
+
+# docker compose override
+docker-compose.override.yml

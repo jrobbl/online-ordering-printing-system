@@ -12,7 +12,7 @@ services:
       POSTGRES_DB: ${DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro,z
     networks:
       - bakery_network
     healthcheck:
@@ -29,7 +29,7 @@ services:
     container_name: bakery_backend
     restart: unless-stopped
     env_file:
-      - backend/.env.production
+      - backend/.env
     depends_on:
       postgres:
         condition: service_healthy
@@ -50,8 +50,8 @@ services:
     expose:
       - "80"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./frontend:/usr/share/nginx/html:ro
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro,z
+      - ./frontend:/usr/share/nginx/html:ro,z
     depends_on:
       - backend
     networks:
