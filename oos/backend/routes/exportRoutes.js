@@ -58,7 +58,7 @@ router.get('/', authenticateToken, async (req, res) => {
             JOIN order_items oi ON oi.order_id = o.order_id
             JOIN products p     ON p.product_id = oi.product_id
             WHERE o.order_date >= $1 AND o.order_date < $2
-              AND o.status = 'completed'
+              AND o.status = 'pending'
             GROUP BY o.customer_name, o.customer_branch, p.product_name, DATE(o.order_date)
             ORDER BY o.customer_name, o.customer_branch, p.product_name
         `, [date_from, date_to]);
