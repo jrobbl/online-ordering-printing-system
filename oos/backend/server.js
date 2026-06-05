@@ -59,6 +59,9 @@ app.use('/api/auth', authRoutes);  // ← NEW
 // Product routes (public - customers need access)
 app.use('/api/products', productRoutes);
 
+const exportRoutes = require('./routes/exportRoutes');
+app.use('/api/orders/export', exportRoutes);
+
 // Order routes (mixed - customer order creation is public, admin management is protected)
 app.use('/api/orders', orderRoutes);
 

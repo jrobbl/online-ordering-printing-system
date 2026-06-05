@@ -507,3 +507,85 @@ document.addEventListener('DOMContentLoaded', () => {
         logoutBtn.addEventListener('click', handleLogout);
     }
 });
+
+// ============================================
+// EXPORT MODAL
+// ============================================
+
+function openExportModal() {
+    setExportPreset('last_week');
+    document.getElementById('export-modal').classList.remove('hidden');
+}
+
+function closeExportModal() {
+    document.getElementById('export-modal').classList.add('hidden');
+}
+
+function setExportPreset(preset) {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    let from, to;
+
+    if (preset === 'last_week') {
+        const day = today.getDay();
+        const daysFromMonday = day === 0 ? 6 : day - 1;
+        const thisMonday = new Date(today);
+        thisMonday.setDate(today.getDate() - daysFromMonday);
+        from = new Date(thisMonday);
+        from.setDate(thisMonday.getDate() - 7);
+        to = new Date(thisMonday);
+        to.setDate(thisMonday.getDate() - 1);
+    } else {
+        const day = today.getDay();
+        const daysFromMonday = day === 0 ? 6 : day - 1;
+        from = new Date(today);
+        from.setDate(today.getDate() - daysFromMonday);
+        to = new Date(today);
+    }
+
+    document.getElementById('export-date-from').value = toInputDate(from);
+    document.getElementById('export-date-to').value = toInputDate(to);
+}
+
+function toInputDate(date) {
+    return date.toISOString().split('T')[0];
+}
+
+async function downloadExport() {
+    const from = document.getElementById('export-date-from').value;
+    const to   = document.getElementById('export-date-to').value;
+
+    if (!from || !to) {
+        alert('Selecciona ambas fechas');
+        return;
+    }
+
+    const dateFrom = new Date(from).toISOString();
+    const dateTo   = new Date(to);
+    dateTo.setDate(dateTo.getDate() + 1);
+
+    const token = getAuthToken();
+    const url = `${API_URL}/orders/export?date_from=${dateFrom}&date_to=${dateTo.toISOString()}`;
+
+    try {
+        const response = await fetch(url, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) throw new Error('Error al generar el archivo');
+
+        const blob = await response.blob();
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `pedidos_${from}_${to}.xlsx`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        closeExportModal();
+    } catch (e) {
+        alert('No se pudo descargar el archivo. Intenta de nuevo.');
+    }
+}
+
+document.getElementById('export-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeExportModal();
+});

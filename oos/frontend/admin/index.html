@@ -74,7 +74,10 @@
             <button class="btn btn-sm btn-outline" data-status="pending" onclick="setStatus('pending')">Pendientes</button>
             <button class="btn btn-sm btn-outline" data-status="completed" onclick="setStatus('completed')">Completados</button>
             <button class="btn btn-sm btn-outline" data-status="cancelled" onclick="setStatus('cancelled')">Cancelados</button>
-            <button class="btn btn-sm btn-secondary" onclick="printRecentOrders()" style="margin-left: auto;">
+            <button class="btn btn-sm btn-secondary" onclick="openExportModal()" style="margin-left: auto;">
+                📥 Descargar por Fecha
+            </button>
+            <button class="btn btn-sm btn-secondary" onclick="printRecentOrders()">
                 🖨️ Imprimir Recientes
             </button>
         </div>
@@ -108,6 +111,34 @@
             </div>
         </div>
     </footer>
+
+    <!-- Export Modal -->
+    <div id="export-modal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h3 class="modal-title">Descargar Pedidos</h3>
+
+            <div class="export-quick-btns">
+                <button class="btn btn-sm btn-outline" onclick="setExportPreset('last_week')">Semana Pasada</button>
+                <button class="btn btn-sm btn-outline" onclick="setExportPreset('this_week')">Esta Semana</button>
+            </div>
+
+            <div class="export-date-row">
+                <div class="export-date-field">
+                    <label>De</label>
+                    <input type="date" id="export-date-from">
+                </div>
+                <div class="export-date-field">
+                    <label>Hasta</label>
+                    <input type="date" id="export-date-to">
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeExportModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="downloadExport()">📥 Descargar</button>
+            </div>
+        </div>
+    </div>
 
     <script src="auth.js"></script>
     <script src="script.js"></script>
