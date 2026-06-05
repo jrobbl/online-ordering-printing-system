@@ -33,7 +33,7 @@
 // ============================================
 
 let orders = [];
-let currentPeriod = 'today_yesterday'; // 'today_yesterday' | 'this_week' | 'all'
+let currentPeriod = 'today'; // 'today' | 'yesterday' | 'this_week'
 let currentStatus = null;              // null | 'pending' | 'completed' | 'cancelled'
 const printedOrders = new Set();
 
@@ -80,10 +80,15 @@ function getDateRange(period) {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    if (period === 'today_yesterday') {
+    if (period === 'today') {
+        return { date_from: today.toISOString(), date_to: null };
+    }
+
+    if (period === 'yesterday') {
         const from = new Date(today);
-        from.setDate(from.getDate() - 1); // midnight yesterday
-        return { date_from: from.toISOString(), date_to: null };
+        from.setDate(from.getDate() - 1);
+        const to = new Date(today);
+        return { date_from: from.toISOString(), date_to: to.toISOString() };
     }
 
     if (period === 'this_week') {
@@ -94,7 +99,7 @@ function getDateRange(period) {
         return { date_from: monday.toISOString(), date_to: null };
     }
 
-    return { date_from: null, date_to: null };
+    return { date_from: today.toISOString(), date_to: null };
 }
 
 // ============================================
@@ -176,54 +181,11 @@ function setStatus(status) {
 function displayOrders() {
     ordersContainer.innerHTML = '';
 
-    if (currentPeriod === 'all') {
-        const groups = groupByWeek(orders);
-        groups.forEach(({ label, orders: weekOrders }) => {
-            ordersContainer.innerHTML += `<div class="week-header">${escapeHtml(label)}</div>`;
-            weekOrders.forEach(order => {
-                ordersContainer.innerHTML += createOrderCard(order);
-            });
-        });
-    } else {
+    {
         orders.forEach(order => {
             ordersContainer.innerHTML += createOrderCard(order);
         });
     }
-}
-
-// ============================================
-// GROUP BY WEEK (for historical view)
-// ============================================
-
-function groupByWeek(orders) {
-    const weeks = new Map();
-
-    orders.forEach(order => {
-        const date = new Date(order.order_date);
-        const day = date.getDay();
-        const daysFromMonday = day === 0 ? 6 : day - 1;
-        const monday = new Date(date);
-        monday.setDate(monday.getDate() - daysFromMonday);
-        monday.setHours(0, 0, 0, 0);
-        const sunday = new Date(monday);
-        sunday.setDate(sunday.getDate() + 6);
-
-        const weekKey = monday.toISOString().split('T')[0];
-
-        if (!weeks.has(weekKey)) {
-            weeks.set(weekKey, { label: formatWeekLabel(monday, sunday), orders: [] });
-        }
-        weeks.get(weekKey).orders.push(order);
-    });
-
-    return Array.from(weeks.values());
-}
-
-function formatWeekLabel(monday, sunday) {
-    const opts = { day: 'numeric', month: 'short' };
-    const m = monday.toLocaleDateString('es-MX', opts);
-    const s = sunday.toLocaleDateString('es-MX', opts);
-    return `Semana del ${m} al ${s}, ${sunday.getFullYear()}`;
 }
 
 // ============================================
