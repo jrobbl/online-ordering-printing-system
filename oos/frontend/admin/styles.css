@@ -1236,3 +1236,76 @@ textarea.form-control {
     justify-content: flex-end;
     gap: 0.75rem;
 }
+
+/* ============================================
+   PRODUCT MANAGEMENT PAGE
+   ============================================ */
+
+.product-category-section {
+    margin-bottom: 2rem;
+}
+
+.category-heading {
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--secondary-color);
+    border-bottom: 2px solid var(--accent-color);
+    padding-bottom: 0.4rem;
+    margin-bottom: 0.5rem;
+}
+
+.product-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 0.75rem;
+    border-radius: var(--radius-sm);
+    transition: background var(--transition-fast);
+}
+
+.product-row:hover {
+    background: var(--light-gray);
+}
+
+.product-row.product-paused .product-name {
+    color: var(--gray);
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+.product-name {
+    font-size: 0.95rem;
+}
+
+.product-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-pause {
+    background: var(--warning);
+    color: white;
+    border-radius: var(--radius-sm);
+    padding: 0.3rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.btn-pause:hover {
+    background: #e68900;
+}
+
+.btn-resume {
+    background: var(--success);
+    color: white;
+    border-radius: var(--radius-sm);
+    padding: 0.3rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.btn-resume:hover {
+    background: #3d9140;
+}

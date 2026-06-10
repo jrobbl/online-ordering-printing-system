@@ -56,6 +56,10 @@ app.get('/api/health', (req, res) => {
 // Authentication routes (public)
 app.use('/api/auth', authRoutes);  // ← NEW
 
+// Admin product management (authenticated)
+const adminProductRoutes = require('./routes/adminProductRoutes');
+app.use('/api/admin/products', adminProductRoutes);
+
 // Product routes (public - customers need access)
 app.use('/api/products', productRoutes);
 

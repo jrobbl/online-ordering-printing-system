@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Productos - Panadería</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="nav">
+                <h1 class="logo">📋 Panel de Administración</h1>
+                <div class="admin-nav-links">
+                    <a href="index.html" class="btn btn-sm btn-outline">← Pedidos</a>
+                    <button class="btn btn-sm btn-secondary" id="logout-btn">Cerrar Sesión</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container section">
+        <div class="flex mb-4" style="align-items: center; justify-content: space-between;">
+            <h2>Editar Productos</h2>
+            <button class="btn btn-primary" id="add-product-btn">+ Agregar Producto</button>
+        </div>
+
+        <div id="loading" class="spinner"></div>
+
+        <div id="products-container"></div>
+
+        <div id="empty-state" class="empty-state hidden">
+            <div class="empty-state-icon">📦</div>
+            <p>No hay productos registrados</p>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 EMMER Panadería - Panel de Administración</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Add / Edit Modal -->
+    <div id="product-modal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h3 class="modal-title" id="modal-title">Agregar Producto</h3>
+            <form id="product-form">
+                <div class="export-date-field" style="margin-bottom: 1rem;">
+                    <label>Nombre</label>
+                    <input type="text" id="product-name-input" placeholder="Nombre del producto" required
+                        style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+                </div>
+                <div class="export-date-field" style="margin-bottom: 1.5rem;">
+                    <label>Categoría</label>
+                    <select id="product-category-select" required
+                        style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; background: white;">
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-outline" id="modal-cancel">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="products.js"></script>
+</body>
+
+</html>
